@@ -1,0 +1,10 @@
+pandas==3.0.2
+matplotlib==3.10.8
+statsmodels==0.14.6
+numpy==2.4.4
+scipy==1.17.1
+python-dateutil==2.9.0.post0
+patsy==1.0.2
+tzdata==2026.1
+scikit-learn==1.8.0
+tensorflow

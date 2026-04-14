@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FMCG AI Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2f3640;
+        }
+
+        .buttons {
+            text-align: center;
+            margin: 20px;
+        }
+
+        button {
+            padding: 12px 25px;
+            margin: 10px;
+            border: none;
+            background: #273c75;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        button:hover {
+            background: #40739e;
+        }
+
+        .cards {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            width: 30%;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            margin: 0;
+            color: #273c75;
+        }
+
+        .card p {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #273c75;
+            color: white;
+            padding: 12px;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ok {
+            background: #d4edda;
+        }
+
+        .reorder {
+            background: #f8d7da;
+        }
+
+        #status {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        canvas {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>📊 FMCG AI Smart Inventory Dashboard</h1>
+
+<div class="buttons">
+    <button onclick="loadData()">Load Dataset</button>
+    <button onclick="runForecast()">Run Forecast</button>
+    <button onclick="checkInventory()">Check Inventory</button>
+</div>
+
+<div id="status"></div>
+
+<!-- KPI CARDS -->
+<div class="cards">
+    <div class="card">
+        <h2>Total Products</h2>
+        <p id="totalProducts">-</p>
+    </div>
+    <div class="card">
+        <h2>Reorder Items</h2>
+        <p id="reorderCount">-</p>
+    </div>
+    <div class="card">
+        <h2>Avg Demand (14d)</h2>
+        <p id="avgDemand">-</p>
+    </div>
+</div>
+
+<!-- TABLE -->
+<h2>📦 Inventory Results</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>StockCode</th>
+            <th>Stock</th>
+            <th>Avg Daily</th>
+            <th>14-Day Demand</th>
+            <th>Reorder Level</th>
+            <th>Projected</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+</table>
+
+<!-- CHART -->
+<canvas id="demandChart"></canvas>
+
+<script>
+
+const API = "http://127.0.0.1:8000";
+
+async function loadData(){
+    document.getElementById("status").innerText = "Loading dataset...";
+    let res = await fetch(API + "/load_data", {method: "POST"});
+    let data = await res.json();
+    document.getElementById("status").innerText = data.message || data.error;
+}
+
+async function runForecast(){
+    document.getElementById("status").innerText = "Running forecast...";
+    let res = await fetch(API + "/forecast");
+    let data = await res.json();
+
+    if(data.error){
+        document.getElementById("status").innerText = data.error;
+        return;
+    }
+
+    window.forecastData = data.forecast_14_days;
+
+    document.getElementById("totalProducts").innerText = data.forecast_14_days.length;
+    document.getElementById("status").innerText = "Forecast complete";
+
+    drawChart(data.forecast_14_days);
+}
+
+async function checkInventory(){
+    document.getElementById("status").innerText = "Checking inventory...";
+    let res = await fetch(API + "/inventory");
+    let data = await res.json();
+
+    let table = document.getElementById("tableBody");
+    table.innerHTML = "";
+
+    if(data.error){
+        document.getElementById("status").innerText = data.error;
+        return;
+    }
+
+    let reorderCount = 0;
+    let totalDemand = 0;
+
+    data.reorder_items.forEach(item => {
+
+        let row = document.createElement("tr");
+
+        let isReorder = item.ProjectedStock <= item.ReorderLevel_14days;
+
+        if(isReorder){
+            row.className = "reorder";
+            reorderCount++;
+        } else {
+            row.className = "ok";
+        }
+
+        totalDemand += item.PredictedDemand_14days;
+
+        row.innerHTML = `
+            <td>${item.StockCode}</td>
+            <td>${item.CurrentStock_30days.toFixed(0)}</td>
+            <td>${item.AvgDailyDemand.toFixed(2)}</td>
+            <td>${item.PredictedDemand_14days.toFixed(0)}</td>
+            <td>${item.ReorderLevel_14days.toFixed(0)}</td>
+            <td>${item.ProjectedStock.toFixed(0)}</td>
+            <td>${isReorder ? "REORDER" : "OK"}</td>
+        `;
+
+        table.appendChild(row);
+    });
+
+    document.getElementById("reorderCount").innerText = reorderCount;
+    document.getElementById("avgDemand").innerText = (totalDemand / data.reorder_items.length || 0).toFixed(0);
+
+    document.getElementById("status").innerText = "Inventory updated";
+}
+
+function drawChart(data){
+
+    let labels = data.map(d => d.StockCode);
+    let values = data.map(d => d.PredictedDemand_14days);
+
+    new Chart(document.getElementById("demandChart"), {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "14-Day Demand",
+                data: values
+            }]
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
