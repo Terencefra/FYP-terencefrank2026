@@ -1,254 +1,510 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>FMCG AI Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f4f6f9;
-            margin: 0;
-            padding: 20px;
-        }
+<title>FMCG AI Smart Inventory Dashboard</title>
 
-        h1 {
-            text-align: center;
-            color: #2f3640;
-        }
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        .buttons {
-            text-align: center;
-            margin: 20px;
-        }
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-        button {
-            padding: 12px 25px;
-            margin: 10px;
-            border: none;
-            background: #273c75;
-            color: white;
-            font-size: 14px;
-            cursor: pointer;
-            border-radius: 6px;
-        }
+body{
+    font-family:Segoe UI,Arial,sans-serif;
+    background:#f4f6fa;
+    color:#222;
+}
 
-        button:hover {
-            background: #40739e;
-        }
+.wrapper{
+    display:flex;
+    min-height:100vh;
+}
 
-        .cards {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px 0;
-        }
+/* SIDEBAR */
+.sidebar{
+    width:240px;
+    background:#111827;
+    color:white;
+    padding:30px 20px;
+}
 
-        .card {
-            background: white;
-            padding: 20px;
-            width: 30%;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+.sidebar h2{
+    font-size:22px;
+    margin-bottom:30px;
+}
 
-        .card h2 {
-            margin: 0;
-            color: #273c75;
-        }
+.sidebar p{
+    color:#cbd5e1;
+    margin-bottom:8px;
+    font-size:14px;
+}
 
-        .card p {
-            font-size: 20px;
-            margin: 10px 0;
-        }
+.sidebar .menu{
+    margin-top:30px;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            margin-top: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-        }
+.sidebar .menu div{
+    padding:12px;
+    margin-bottom:10px;
+    border-radius:8px;
+    background:#1f2937;
+}
 
-        th {
-            background: #273c75;
-            color: white;
-            padding: 12px;
-        }
+/* MAIN */
+.main{
+    flex:1;
+    padding:30px;
+}
 
-        td {
-            padding: 10px;
-            text-align: center;
-            border-bottom: 1px solid #eee;
-        }
+/* TOP BAR */
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
 
-        .ok {
-            background: #d4edda;
-        }
+.topbar h1{
+    font-size:28px;
+}
 
-        .reorder {
-            background: #f8d7da;
-        }
+.topbar span{
+    color:#666;
+}
 
-        #status {
-            text-align: center;
-            font-weight: bold;
-            margin-top: 10px;
-        }
+/* BUTTONS */
+.actions{
+    margin-bottom:25px;
+}
 
-        canvas {
-            margin-top: 30px;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-        }
-    </style>
+button{
+    border:none;
+    padding:12px 18px;
+    margin-right:10px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.btn-primary{
+    background:#2563eb;
+    color:white;
+}
+
+.btn-green{
+    background:#16a34a;
+    color:white;
+}
+
+.btn-orange{
+    background:#f59e0b;
+    color:white;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+/* CARDS */
+.cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+    margin-bottom:25px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.06);
+}
+
+.card h3{
+    font-size:14px;
+    color:#777;
+    margin-bottom:8px;
+}
+
+.card p{
+    font-size:28px;
+    font-weight:bold;
+}
+
+/* PANELS */
+.grid{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:20px;
+    margin-bottom:25px;
+}
+
+.panel{
+    background:white;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.06);
+}
+
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+
+th,td{
+    padding:12px;
+    text-align:left;
+    border-bottom:1px solid #eee;
+    font-size:14px;
+}
+
+th{
+    background:#f8fafc;
+}
+
+.status{
+    padding:6px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.ok{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.reorder{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+.critical{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+#statusText{
+    margin-top:10px;
+    color:#555;
+    font-weight:600;
+}
+
+.loader{
+    display:none;
+    margin-left:15px;
+}
+
+@media(max-width:1100px){
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:768px){
+    .wrapper{
+        flex-direction:column;
+    }
+
+    .sidebar{
+        width:100%;
+    }
+
+    .cards{
+        grid-template-columns:1fr;
+    }
+}
+</style>
 </head>
 
 <body>
 
-<h1>📊 FMCG AI Smart Inventory Dashboard</h1>
+<div class="wrapper">
 
-<div class="buttons">
-    <button onclick="loadData()">Load Dataset</button>
-    <button onclick="runForecast()">Run Forecast</button>
-    <button onclick="checkInventory()">Check Inventory</button>
+<!-- REPLACE THIS LEFT SIDEBAR BLOCK -->
+
+<div class="sidebar">
+    <h2>📦 FMCG AI</h2>
+
+    <p>Smart Inventory</p>
+    <p>Demand Forecasting</p>
+    <p>LSTM Prediction</p>
+
+    <div style="margin-top:40px; font-size:14px; color:#cbd5e1; line-height:1.8;">
+        <p>✔ AI Powered Forecasting</p>
+        <p>✔ Inventory Monitoring</p>
+        <p>✔ Reorder Detection</p>
+        <p>✔ FMCG Analytics</p>
+        <p>✔ 14 Day Demand Planning</p>
+    </div>
 </div>
 
-<div id="status"></div>
+<div class="main">
 
-<!-- KPI CARDS -->
+<div class="topbar">
+    <div>
+        <h1>AI Smart Inventory Dashboard</h1>
+        <span>Real-time FMCG Forecasting & Stock Control</span>
+    </div>
+</div>
+
+<div class="actions">
+    <button class="btn-primary" onclick="loadData()">Load Dataset</button>
+    <button class="btn-green" onclick="runForecast()">Run Forecast</button>
+    <button class="btn-orange" onclick="loadInventory()">Check Inventory</button>
+    <button onclick="downloadCSV()">Export CSV</button>
+
+    <span class="loader" id="loader">⏳ Processing...</span>
+</div>
+
+<div id="statusText">System Ready</div>
+
+<!-- KPI -->
 <div class="cards">
-    <div class="card">
-        <h2>Total Products</h2>
-        <p id="totalProducts">-</p>
-    </div>
-    <div class="card">
-        <h2>Reorder Items</h2>
-        <p id="reorderCount">-</p>
-    </div>
-    <div class="card">
-        <h2>Avg Demand (14d)</h2>
-        <p id="avgDemand">-</p>
-    </div>
+
+<div class="card">
+    <h3>Total Products</h3>
+    <p id="totalProducts">0</p>
+</div>
+
+<div class="card">
+    <h3>Reorder Items</h3>
+    <p id="reorderCount">0</p>
+</div>
+
+<div class="card">
+    <h3>Critical Items</h3>
+    <p id="criticalCount">0</p>
+</div>
+
+<div class="card">
+    <h3>Avg Forecast</h3>
+    <p id="avgForecast">0</p>
+</div>
+
+</div>
+
+<!-- Charts -->
+<div class="grid">
+
+<div class="panel">
+    <h3>14-Day Demand Forecast</h3>
+    <canvas id="forecastChart"></canvas>
+</div>
+
+<div class="panel">
+    <h3>Status Overview</h3>
+    <canvas id="statusChart"></canvas>
+</div>
+
 </div>
 
 <!-- TABLE -->
-<h2>📦 Inventory Results</h2>
+<div class="panel">
+    <h3>Inventory Status</h3>
 
-<table>
-    <thead>
-        <tr>
-            <th>StockCode</th>
-            <th>Stock</th>
-            <th>Avg Daily</th>
-            <th>14-Day Demand</th>
-            <th>Reorder Level</th>
-            <th>Projected</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-</table>
+    <input type="text" id="searchBox" placeholder="Search product..."
+           style="padding:10px;width:260px;margin-top:10px;border:1px solid #ddd;border-radius:8px;"
+           onkeyup="filterTable()">
 
-<!-- CHART -->
-<canvas id="demandChart"></canvas>
+    <table id="inventoryTable">
+        <thead>
+            <tr>
+                <th>StockCode</th>
+                <th>Description</th>
+                <th>Stock</th>
+                <th>Avg Daily</th>
+                <th>Forecast</th>
+                <th>Days Left</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+</div>
+</div>
 
 <script>
 
 const API = "http://127.0.0.1:8000";
 
+let inventoryData = [];
+let forecastChart = null;
+let statusChart = null;
+
+function showLoader(show=true){
+    document.getElementById("loader").style.display = show ? "inline" : "none";
+}
+
+function setStatus(msg){
+    document.getElementById("statusText").innerText = msg;
+}
+
 async function loadData(){
-    document.getElementById("status").innerText = "Loading dataset...";
-    let res = await fetch(API + "/load_data", {method: "POST"});
+    showLoader(true);
+    setStatus("Loading dataset...");
+
+    let res = await fetch(API + "/load_data", {method:"POST"});
     let data = await res.json();
-    document.getElementById("status").innerText = data.message || data.error;
+
+    setStatus(data.message || data.error);
+    showLoader(false);
 }
 
 async function runForecast(){
-    document.getElementById("status").innerText = "Running forecast...";
+    showLoader(true);
+    setStatus("Running AI forecast...");
+
     let res = await fetch(API + "/forecast");
     let data = await res.json();
 
     if(data.error){
-        document.getElementById("status").innerText = data.error;
+        setStatus(data.error);
+        showLoader(false);
         return;
     }
 
-    window.forecastData = data.forecast_14_days;
+    let labels = data.forecast_14_days.map(x => x.StockCode);
+    let values = data.forecast_14_days.map(x => x.PredictedDemand_14days);
 
+    let avg = values.reduce((a,b)=>a+b,0) / values.length;
+    document.getElementById("avgForecast").innerText = avg.toFixed(0);
     document.getElementById("totalProducts").innerText = data.forecast_14_days.length;
-    document.getElementById("status").innerText = "Forecast complete";
 
-    drawChart(data.forecast_14_days);
-}
+    if(forecastChart) forecastChart.destroy();
 
-async function checkInventory(){
-    document.getElementById("status").innerText = "Checking inventory...";
-    let res = await fetch(API + "/inventory");
-    let data = await res.json();
-
-    let table = document.getElementById("tableBody");
-    table.innerHTML = "";
-
-    if(data.error){
-        document.getElementById("status").innerText = data.error;
-        return;
-    }
-
-    let reorderCount = 0;
-    let totalDemand = 0;
-
-    data.reorder_items.forEach(item => {
-
-        let row = document.createElement("tr");
-
-        let isReorder = item.ProjectedStock <= item.ReorderLevel_14days;
-
-        if(isReorder){
-            row.className = "reorder";
-            reorderCount++;
-        } else {
-            row.className = "ok";
-        }
-
-        totalDemand += item.PredictedDemand_14days;
-
-        row.innerHTML = `
-            <td>${item.StockCode}</td>
-            <td>${item.CurrentStock_30days.toFixed(0)}</td>
-            <td>${item.AvgDailyDemand.toFixed(2)}</td>
-            <td>${item.PredictedDemand_14days.toFixed(0)}</td>
-            <td>${item.ReorderLevel_14days.toFixed(0)}</td>
-            <td>${item.ProjectedStock.toFixed(0)}</td>
-            <td>${isReorder ? "REORDER" : "OK"}</td>
-        `;
-
-        table.appendChild(row);
-    });
-
-    document.getElementById("reorderCount").innerText = reorderCount;
-    document.getElementById("avgDemand").innerText = (totalDemand / data.reorder_items.length || 0).toFixed(0);
-
-    document.getElementById("status").innerText = "Inventory updated";
-}
-
-function drawChart(data){
-
-    let labels = data.map(d => d.StockCode);
-    let values = data.map(d => d.PredictedDemand_14days);
-
-    new Chart(document.getElementById("demandChart"), {
-        type: "bar",
-        data: {
-            labels: labels,
-            datasets: [{
-                label: "14-Day Demand",
-                data: values
+    forecastChart = new Chart(document.getElementById("forecastChart"),{
+        type:"bar",
+        data:{
+            labels:labels,
+            datasets:[{
+                label:"14 Day Demand",
+                data:values,
+                backgroundColor:"#2563eb"
             }]
         }
     });
+
+    setStatus("Forecast completed successfully");
+    showLoader(false);
+}
+
+async function loadInventory(){
+
+    showLoader(true);
+    setStatus("Checking inventory...");
+
+    let res = await fetch(API + "/inventory");
+    let data = await res.json();
+
+    if(data.error){
+        setStatus(data.error);
+        showLoader(false);
+        return;
+    }
+
+    inventoryData = data.inventory;
+
+    let reorder = inventoryData.filter(x => x.Status === "REORDER").length;
+    let critical = inventoryData.filter(x => x.Status === "CRITICAL").length;
+    let ok = inventoryData.length - reorder - critical;
+
+    document.getElementById("reorderCount").innerText = reorder;
+    document.getElementById("criticalCount").innerText = critical;
+
+    renderTable(inventoryData);
+    drawStatusChart(ok, reorder, critical);
+
+    setStatus("Inventory loaded");
+    showLoader(false);
+}
+
+function renderTable(rows){
+
+    let tbody = document.querySelector("#inventoryTable tbody");
+    tbody.innerHTML = "";
+
+    rows.forEach(item => {
+
+        let cls = "ok";
+        if(item.Status === "REORDER") cls = "reorder";
+        if(item.Status === "CRITICAL") cls = "critical";
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${item.StockCode}</td>
+            <td>${item.Description}</td>
+            <td>${item.CurrentStock}</td>
+            <td>${item.AvgDailyDemand}</td>
+            <td>${item.PredictedDemand_14days}</td>
+            <td>${item.DaysOfStockLeft}</td>
+            <td><span class="status ${cls}">${item.Status}</span></td>
+        </tr>`;
+    });
+}
+
+function drawStatusChart(ok, reorder, critical){
+
+    if(statusChart) statusChart.destroy();
+
+    statusChart = new Chart(document.getElementById("statusChart"),{
+        type:"doughnut",
+        data:{
+            labels:["OK","Reorder","Critical"],
+            datasets:[{
+                data:[ok,reorder,critical],
+                backgroundColor:["#10b981","#f59e0b","#ef4444"]
+            }]
+        }
+    });
+}
+
+function filterTable(){
+
+    let text = document.getElementById("searchBox").value.toLowerCase();
+
+    let filtered = inventoryData.filter(x =>
+        x.StockCode.toLowerCase().includes(text) ||
+        x.Description.toLowerCase().includes(text)
+    );
+
+    renderTable(filtered);
+}
+
+function downloadCSV(){
+
+    if(inventoryData.length === 0){
+        alert("Load inventory first");
+        return;
+    }
+
+    let csv = "StockCode,Description,CurrentStock,AvgDailyDemand,PredictedDemand_14days,ReorderLevel,ProjectedStock,DaysOfStockLeft,Status\n";
+
+    inventoryData.forEach(i=>{
+        csv += `${i.StockCode},"${i.Description}",${i.CurrentStock},${i.AvgDailyDemand},${i.PredictedDemand_14days},${i.ReorderLevel},${i.ProjectedStock},${i.DaysOfStockLeft},${i.Status}\n`;
+    });
+
+    let blob = new Blob([csv], {type:"text/csv"});
+    let url = URL.createObjectURL(blob);
+
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = "inventory_report_"+new Date().toISOString().split('T')[0]+".csv";
+    a.click();
 }
 
 </script>
